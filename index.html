@@ -8,16 +8,20 @@
     :root {
       --bg: #0f172a;
       --panel: #111827;
+      --panel-2: #1f2937;
       --card: #111827;
       --muted: #94a3b8;
       --text: #e5e7eb;
       --accent: #38bdf8;
       --accent-2: #0ea5e9;
       --danger: #ef4444;
+      --danger-soft: rgba(239, 68, 68, 0.14);
+      --warning-border: rgba(239, 68, 68, 0.45);
       --border: rgba(255, 255, 255, 0.08);
       --input: #0b1220;
       --shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-      --warning-ring: 0 0 0 1px rgba(239, 68, 68, 0.4), 0 0 18px rgba(239, 68, 68, 0.25);
+      --shadow-lg: 0 24px 70px rgba(0, 0, 0, 0.42);
+      --overlay: rgba(2, 6, 23, 0.7);
     }
 
     * {
@@ -35,18 +39,23 @@
     }
 
     .container {
-      width: min(1120px, calc(100% - 32px));
+      width: min(1280px, calc(100% - 32px));
       margin: 32px auto 48px;
     }
 
     .header {
-      margin-bottom: 24px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
     }
 
-    .title {
+    .title-wrap h1 {
+      margin: 0 0 10px;
       font-size: clamp(28px, 4vw, 42px);
       font-weight: 800;
-      margin: 0 0 10px;
       letter-spacing: -0.02em;
     }
 
@@ -55,19 +64,6 @@
       color: var(--muted);
       line-height: 1.5;
       max-width: 900px;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: 360px 1fr;
-      gap: 20px;
-      align-items: start;
-    }
-
-    @media (max-width: 920px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
     }
 
     .panel {
@@ -79,9 +75,248 @@
       backdrop-filter: blur(10px);
     }
 
-    .panel h2 {
-      margin: 0 0 16px;
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-left {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .toolbar-title {
+      margin: 0;
       font-size: 20px;
+      font-weight: 700;
+    }
+
+    .toolbar-meta {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 11px 16px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.05s ease, opacity 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(180deg, var(--accent), var(--accent-2));
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #243041;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.18);
+      color: #fecaca;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-small {
+      padding: 9px 12px;
+      font-size: 14px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: rgba(2, 6, 23, 0.18);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+    }
+
+    thead th {
+      text-align: left;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+      padding: 14px 14px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    tbody td {
+      padding: 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr {
+      transition: background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    tbody tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    tbody tr.expired {
+      background: var(--danger-soft);
+      box-shadow: inset 0 0 0 1px var(--warning-border);
+    }
+
+    .cell-title {
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 6px;
+      word-break: break-word;
+    }
+
+    .cell-text {
+      color: var(--muted);
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-width: 420px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(56, 189, 248, 0.12);
+      color: #bae6fd;
+      border: 1px solid rgba(56, 189, 248, 0.22);
+    }
+
+    .pill.expired {
+      background: rgba(239, 68, 68, 0.14);
+      color: #fecaca;
+      border-color: rgba(239, 68, 68, 0.28);
+    }
+
+    .countdown {
+      font-size: 24px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+
+    .countdown.expired {
+      color: #fecaca;
+    }
+
+    .subline {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .empty {
+      border: 1px dashed var(--border);
+      color: var(--muted);
+      border-radius: 16px;
+      padding: 36px;
+      text-align: center;
+      background: rgba(15, 23, 42, 0.4);
+    }
+
+    .danger-note {
+      color: #fecaca;
+      font-size: 12px;
+      margin-top: 6px;
+      font-weight: 600;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: var(--overlay);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1000;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      width: min(560px, 100%);
+      background: linear-gradient(180deg, rgba(17,24,39,0.98), rgba(15,23,42,0.98));
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 18px 0;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #243041;
+      color: var(--text);
+      border: 1px solid var(--border);
+      font-size: 18px;
+    }
+
+    .modal-body {
+      padding: 18px;
     }
 
     .field {
@@ -109,7 +344,7 @@
     }
 
     .field textarea {
-      min-height: 100px;
+      min-height: 110px;
       resize: vertical;
     }
 
@@ -124,215 +359,6 @@
       color: var(--muted);
       margin-top: 6px;
       line-height: 1.4;
-    }
-
-    .actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 16px;
-    }
-
-    button {
-      border: none;
-      border-radius: 12px;
-      padding: 11px 16px;
-      font: inherit;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.05s ease, opacity 0.2s ease, background 0.2s ease;
-    }
-
-    button:active {
-      transform: translateY(1px);
-    }
-
-    .btn-primary {
-      background: linear-gradient(180deg, var(--accent), var(--accent-2));
-      color: white;
-    }
-
-    .btn-secondary {
-      background: #243041;
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    .btn-danger {
-      background: rgba(239, 68, 68, 0.18);
-      color: #fecaca;
-      border: 1px solid rgba(239, 68, 68, 0.3);
-    }
-
-    .toolbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      margin-bottom: 14px;
-      flex-wrap: wrap;
-    }
-
-    .toolbar .meta {
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .list {
-      display: grid;
-      gap: 14px;
-    }
-
-    .empty {
-      border: 1px dashed var(--border);
-      color: var(--muted);
-      border-radius: 16px;
-      padding: 28px;
-      text-align: center;
-      background: rgba(15, 23, 42, 0.4);
-    }
-
-    .card {
-      background: linear-gradient(180deg, rgba(17,24,39,1), rgba(15,23,42,0.96));
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 16px;
-      box-shadow: var(--shadow);
-      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
-    }
-
-    .card:hover {
-      transform: translateY(-1px);
-    }
-
-    .card.expired {
-      border-color: rgba(239, 68, 68, 0.55);
-      background:
-        linear-gradient(180deg, rgba(60, 12, 18, 0.85), rgba(30, 10, 16, 0.92)),
-        linear-gradient(180deg, rgba(17,24,39,1), rgba(15,23,42,0.96));
-      box-shadow: var(--warning-ring);
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      align-items: start;
-      margin-bottom: 12px;
-    }
-
-    .card-title-wrap {
-      min-width: 0;
-    }
-
-    .card-title {
-      margin: 0 0 6px;
-      font-size: 21px;
-      font-weight: 700;
-      word-break: break-word;
-    }
-
-    .card-desc {
-      color: var(--muted);
-      line-height: 1.45;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    .badge {
-      flex-shrink: 0;
-      border-radius: 999px;
-      padding: 7px 10px;
-      font-size: 12px;
-      font-weight: 700;
-      background: rgba(56, 189, 248, 0.12);
-      color: #bae6fd;
-      border: 1px solid rgba(56, 189, 248, 0.25);
-    }
-
-    .badge.expired {
-      background: rgba(239, 68, 68, 0.16);
-      color: #fecaca;
-      border-color: rgba(239, 68, 68, 0.3);
-    }
-
-    .timer {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 10px;
-      margin: 16px 0 14px;
-    }
-
-    @media (max-width: 720px) {
-      .timer {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    .time-box {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px 10px;
-      text-align: center;
-    }
-
-    .time-value {
-      font-size: clamp(22px, 4vw, 34px);
-      font-weight: 800;
-      line-height: 1.05;
-      margin-bottom: 5px;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .time-label {
-      font-size: 12px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .card-info {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-
-    @media (max-width: 720px) {
-      .card-info {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .info-box {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px;
-    }
-
-    .info-label {
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-
-    .info-value {
-      font-size: 14px;
-      line-height: 1.4;
-      word-break: break-word;
-    }
-
-    .card-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .small-btn {
-      padding: 9px 12px;
-      font-size: 14px;
     }
 
     .mode-box {
@@ -358,126 +384,190 @@
       accent-color: var(--accent);
     }
 
-    .footer-note {
-      margin-top: 20px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .danger-text {
-      color: #fecaca;
-    }
-
     .hidden {
       display: none !important;
+    }
+
+    .modal-footer {
+      padding: 0 18px 18px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.95em;
+      background: rgba(255,255,255,0.06);
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+
+    @media (max-width: 700px) {
+      .container {
+        width: min(100%, calc(100% - 20px));
+        margin: 20px auto 28px;
+      }
+
+      .panel {
+        padding: 14px;
+      }
+
+      .modal {
+        width: 100%;
+      }
+
+      .header {
+        margin-bottom: 16px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <header class="header">
-      <h1 class="title">Таймеры обратного отсчёта</h1>
-      <p class="subtitle">
-        Добавляйте записи с названием, описанием и длительностью в минутах.
-        По умолчанию старт идёт от текущего времени на компьютере, но можно указать,
-        сколько минут назад таймер уже был запущен.
-      </p>
+      <div class="title-wrap">
+        <h1>Таймеры обратного отсчёта</h1>
+        <p class="subtitle">
+          Таблица показывает добавленные записи, их длительность, текущее время обратного отсчёта
+          и дату последнего запуска. Добавление и изменение выполняются через всплывающие окна.
+        </p>
+      </div>
+
+      <div class="toolbar-actions">
+        <button class="btn-primary" id="openCreateBtn" type="button">Добавить запись</button>
+      </div>
     </header>
 
-    <div class="layout">
-      <section class="panel">
-        <h2 id="formTitle">Новая запись</h2>
-
-        <form id="timerForm">
-          <input type="hidden" id="editId" />
-
-          <div class="field">
-            <label for="title">Название</label>
-            <input id="title" type="text" placeholder="Например: Инкубация образца" required maxlength="120" />
-          </div>
-
-          <div class="field">
-            <label for="description">Описание</label>
-            <textarea id="description" placeholder="Комментарий, детали, инструкция..." maxlength="1000"></textarea>
-          </div>
-
-          <div class="field">
-            <label for="durationMinutes">Длительность, минут</label>
-            <input id="durationMinutes" type="number" min="1" step="1" value="5" placeholder="Например: 120" />
-            <div class="hint">Укажите полную длительность таймера только в минутах.</div>
-          </div>
-
-          <div class="mode-box">
-            <label class="inline">
-              <input type="radio" name="startMode" value="now" checked />
-              <span>Начать отсчёт от текущего времени на компьютере</span>
-            </label>
-
-            <label class="inline">
-              <input type="radio" name="startMode" value="offset" />
-              <span>Указать, сколько минут прошло с момента старта</span>
-            </label>
-
-            <div id="customStartWrapper" class="field hidden" style="margin-top: 12px; margin-bottom: 0;">
-              <label for="minutesAgo">Минут назад</label>
-              <input id="minutesAgo" type="number" min="0" step="1" value="0" placeholder="Например: 90" />
-              <div class="hint">
-                Будет взято текущее время компьютера минус указанное количество минут.
-              </div>
-            </div>
-          </div>
-
-          <div class="actions">
-            <button class="btn-primary" type="submit" id="submitBtn">Добавить запись</button>
-            <button class="btn-secondary hidden" type="button" id="cancelEditBtn">Отмена редактирования</button>
-          </div>
-        </form>
-
-        <div class="footer-note">
-          Данные пока хранятся локально в браузере.
+    <section class="panel">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <h2 class="toolbar-title">Список записей</h2>
+          <div class="toolbar-meta" id="stats">Записей: 0</div>
         </div>
-      </section>
 
-      <section class="panel">
-        <div class="toolbar">
-          <div>
-            <h2 style="margin-bottom: 6px;">Список таймеров</h2>
-            <div class="meta" id="stats">Записей: 0</div>
+        <div class="toolbar-actions">
+          <button class="btn-secondary btn-small" id="stopAllSoundBtn" type="button">Выключить звук</button>
+          <button class="btn-danger btn-small" id="clearAllBtn" type="button">Удалить все</button>
+        </div>
+      </div>
+
+      <div id="tableContainer"></div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="entryModalBackdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="entryModalTitle">
+      <div class="modal-header">
+        <h2 class="modal-title" id="entryModalTitle">Новая запись</h2>
+        <button class="icon-btn" id="closeEntryModalBtn" type="button" aria-label="Закрыть">×</button>
+      </div>
+
+      <form id="entryForm">
+        <div class="modal-body">
+          <input type="hidden" id="entryEditId" />
+
+          <div class="field">
+            <label for="entryTitle">Название</label>
+            <input id="entryTitle" type="text" maxlength="120" placeholder="Например: Инкубация образца" required />
           </div>
-          <div class="actions" style="margin-top: 0;">
-            <button class="btn-secondary small-btn" id="stopAllSoundBtn" type="button">Выключить звук</button>
-            <button class="btn-danger small-btn" id="clearAllBtn" type="button">Удалить все</button>
+
+          <div class="field">
+            <label for="entryDescription">Описание</label>
+            <textarea id="entryDescription" maxlength="1000" placeholder="Комментарий, детали, инструкция..."></textarea>
+          </div>
+
+          <div class="field">
+            <label for="entryDurationMinutes">Длительность таймера, минут</label>
+            <input id="entryDurationMinutes" type="number" min="1" step="1" value="5" placeholder="Например: 120" required />
+            <div class="hint">Указывается только длительность в минутах.</div>
           </div>
         </div>
 
-        <div id="timerList" class="list"></div>
-      </section>
+        <div class="modal-footer">
+          <button class="btn-secondary" id="cancelEntryModalBtn" type="button">Отмена</button>
+          <button class="btn-primary" id="saveEntryBtn" type="submit">Сохранить</button>
+        </div>
+      </form>
     </div>
   </div>
 
-  <script>
-    const STORAGE_KEY = "countdown_timer_records_v3";
+  <div class="modal-backdrop" id="restartModalBackdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="restartModalTitle">
+      <div class="modal-header">
+        <h2 class="modal-title" id="restartModalTitle">Повторный запуск</h2>
+        <button class="icon-btn" id="closeRestartModalBtn" type="button" aria-label="Закрыть">×</button>
+      </div>
 
-    const form = document.getElementById("timerForm");
-    const formTitle = document.getElementById("formTitle");
-    const editIdInput = document.getElementById("editId");
-    const titleInput = document.getElementById("title");
-    const descriptionInput = document.getElementById("description");
-    const durationMinutesInput = document.getElementById("durationMinutes");
-    const minutesAgoInput = document.getElementById("minutesAgo");
-    const customStartWrapper = document.getElementById("customStartWrapper");
-    const submitBtn = document.getElementById("submitBtn");
-    const cancelEditBtn = document.getElementById("cancelEditBtn");
-    const timerList = document.getElementById("timerList");
+      <form id="restartForm">
+        <div class="modal-body">
+          <input type="hidden" id="restartRecordId" />
+
+          <div class="mode-box">
+            <label class="inline">
+              <input type="radio" name="restartMode" value="now" checked />
+              <span>Запустить от текущего времени</span>
+            </label>
+
+            <label class="inline">
+              <input type="radio" name="restartMode" value="offset" />
+              <span>Запустить со сдвигом</span>
+            </label>
+
+            <div id="restartOffsetWrapper" class="field hidden" style="margin-top: 12px; margin-bottom: 0;">
+              <label for="restartMinutesAgo">Минут сдвига назад</label>
+              <input id="restartMinutesAgo" type="number" min="0" step="1" value="0" placeholder="Например: 30" />
+              <div class="hint">
+                Это число будет вычтено из текущего времени запуска таймера.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-secondary" id="cancelRestartModalBtn" type="button">Отмена</button>
+          <button class="btn-primary" type="submit">Запустить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <audio id="alarmAudio" preload="auto" src="sounds/alarm.mp3"></audio>
+
+  <script>
+    const STORAGE_KEY = "countdown_timer_records_v5";
+
+    const tableContainer = document.getElementById("tableContainer");
     const stats = document.getElementById("stats");
+    const openCreateBtn = document.getElementById("openCreateBtn");
     const clearAllBtn = document.getElementById("clearAllBtn");
     const stopAllSoundBtn = document.getElementById("stopAllSoundBtn");
+    const alarmAudio = document.getElementById("alarmAudio");
+
+    const entryModalBackdrop = document.getElementById("entryModalBackdrop");
+    const entryModalTitle = document.getElementById("entryModalTitle");
+    const closeEntryModalBtn = document.getElementById("closeEntryModalBtn");
+    const cancelEntryModalBtn = document.getElementById("cancelEntryModalBtn");
+    const entryForm = document.getElementById("entryForm");
+    const entryEditId = document.getElementById("entryEditId");
+    const entryTitle = document.getElementById("entryTitle");
+    const entryDescription = document.getElementById("entryDescription");
+    const entryDurationMinutes = document.getElementById("entryDurationMinutes");
+    const saveEntryBtn = document.getElementById("saveEntryBtn");
+
+    const restartModalBackdrop = document.getElementById("restartModalBackdrop");
+    const closeRestartModalBtn = document.getElementById("closeRestartModalBtn");
+    const cancelRestartModalBtn = document.getElementById("cancelRestartModalBtn");
+    const restartForm = document.getElementById("restartForm");
+    const restartRecordId = document.getElementById("restartRecordId");
+    const restartOffsetWrapper = document.getElementById("restartOffsetWrapper");
+    const restartMinutesAgo = document.getElementById("restartMinutesAgo");
 
     let records = loadRecords();
     let activeAlarmTimerIds = new Set();
-    let audioContext = null;
     let alarmInterval = null;
+    let audioUnlocked = false;
 
     function loadRecords() {
       try {
@@ -495,27 +585,16 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
     }
 
-    function getStartMode() {
-      return document.querySelector('input[name="startMode"]:checked')?.value || "now";
+    function uid() {
+      return crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random());
     }
-
-    function setStartMode(mode) {
-      const radio = document.querySelector(`input[name="startMode"][value="${mode}"]`);
-      if (radio) radio.checked = true;
-      customStartWrapper.classList.toggle("hidden", mode !== "offset");
-    }
-
-    document.querySelectorAll('input[name="startMode"]').forEach((radio) => {
-      radio.addEventListener("change", () => {
-        setStartMode(getStartMode());
-      });
-    });
 
     function minutesToMs(minutes) {
       return (Number(minutes) || 0) * 60 * 1000;
     }
 
     function formatDateTime(ts) {
+      if (!ts) return "—";
       return new Date(ts).toLocaleString("ru-RU");
     }
 
@@ -523,14 +602,17 @@
       return String(num).padStart(2, "0");
     }
 
-    function getTimeParts(msLeft) {
+    function formatDurationMinutes(totalMinutes) {
+      return `${Number(totalMinutes) || 0} мин`;
+    }
+
+    function formatCountdown(msLeft) {
       const safe = Math.max(0, msLeft);
       const totalSeconds = Math.floor(safe / 1000);
-      const days = Math.floor(totalSeconds / (24 * 3600));
-      const hours = Math.floor((totalSeconds % (24 * 3600)) / 3600);
+      const totalHours = Math.floor(totalSeconds / 3600);
       const minutes = Math.floor((totalSeconds % 3600) / 60);
       const seconds = totalSeconds % 60;
-      return { days, hours, minutes, seconds };
+      return `${pad(totalHours)}:${pad(minutes)}:${pad(seconds)}`;
     }
 
     function escapeHtml(value) {
@@ -542,61 +624,68 @@
         .replaceAll("'", "&#039;");
     }
 
-    function uid() {
-      return crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random());
+    function getRestartMode() {
+      return document.querySelector('input[name="restartMode"]:checked')?.value || "now";
     }
 
-    function ensureAudioContext() {
-      if (!audioContext) {
-        const Ctx = window.AudioContext || window.webkitAudioContext;
-        if (Ctx) {
-          audioContext = new Ctx();
-        }
-      }
-      if (audioContext && audioContext.state === "suspended") {
-        audioContext.resume().catch(() => {});
-      }
+    function setRestartMode(mode) {
+      const radio = document.querySelector(`input[name="restartMode"][value="${mode}"]`);
+      if (radio) radio.checked = true;
+      restartOffsetWrapper.classList.toggle("hidden", mode !== "offset");
     }
 
-    function beepOnce(duration = 250, frequency = 880, volume = 0.04) {
+    document.querySelectorAll('input[name="restartMode"]').forEach((radio) => {
+      radio.addEventListener("change", () => {
+        setRestartMode(getRestartMode());
+      });
+    });
+
+    async function unlockAudio() {
+      if (audioUnlocked) return;
+
       try {
-        ensureAudioContext();
-        if (!audioContext) return;
-
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-
-        oscillator.type = "sine";
-        oscillator.frequency.value = frequency;
-        gainNode.gain.value = volume;
-
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-
-        const now = audioContext.currentTime;
-        gainNode.gain.setValueAtTime(0.0001, now);
-        gainNode.gain.exponentialRampToValueAtTime(volume, now + 0.02);
-        gainNode.gain.exponentialRampToValueAtTime(0.0001, now + duration / 1000);
-
-        oscillator.start(now);
-        oscillator.stop(now + duration / 1000 + 0.02);
+        alarmAudio.volume = 1;
+        alarmAudio.currentTime = 0;
+        await alarmAudio.play();
+        alarmAudio.pause();
+        alarmAudio.currentTime = 0;
+        audioUnlocked = true;
       } catch (error) {
-        console.error("Ошибка воспроизведения сигнала:", error);
+        // Браузер может не пустить до первого взаимодействия пользователя.
+      }
+    }
+
+    function playAlarmOnce() {
+      try {
+        alarmAudio.pause();
+        alarmAudio.currentTime = 0;
+        alarmAudio.play().catch(() => {});
+      } catch (error) {
+        console.error("Ошибка воспроизведения аудио:", error);
+      }
+    }
+
+    function stopAlarmSound() {
+      try {
+        alarmAudio.pause();
+        alarmAudio.currentTime = 0;
+      } catch (error) {
+        console.error("Ошибка остановки аудио:", error);
       }
     }
 
     function startAlarmLoopIfNeeded() {
       if (alarmInterval || activeAlarmTimerIds.size === 0) return;
 
-      beepOnce(220, 880, 0.04);
+      playAlarmOnce();
+
       alarmInterval = setInterval(() => {
         if (activeAlarmTimerIds.size === 0) {
           stopAlarmLoop();
           return;
         }
-        beepOnce(180, 880, 0.035);
-        setTimeout(() => beepOnce(180, 660, 0.03), 220);
-      }, 1400);
+        playAlarmOnce();
+      }, 2000);
     }
 
     function stopAlarmLoop() {
@@ -604,6 +693,7 @@
         clearInterval(alarmInterval);
         alarmInterval = null;
       }
+      stopAlarmSound();
     }
 
     function updateAlarmState() {
@@ -611,8 +701,7 @@
       activeAlarmTimerIds.clear();
 
       for (const record of records) {
-        const remaining = record.endTime - now;
-        if (remaining <= 0 && !record.soundDismissed) {
+        if (record.endTime <= now && !record.soundDismissed) {
           activeAlarmTimerIds.add(record.id);
         }
       }
@@ -624,162 +713,248 @@
       }
     }
 
-    function resetForm() {
-      form.reset();
-      editIdInput.value = "";
-      titleInput.value = "";
-      descriptionInput.value = "";
-      durationMinutesInput.value = "5";
-      minutesAgoInput.value = "0";
-      formTitle.textContent = "Новая запись";
-      submitBtn.textContent = "Добавить запись";
-      cancelEditBtn.classList.add("hidden");
-      setStartMode("now");
-    }
+    function sortRecords() {
+      records.sort((a, b) => {
+        const aExpired = a.endTime <= Date.now();
+        const bExpired = b.endTime <= Date.now();
 
-    function validateForm() {
-      const title = titleInput.value.trim();
-      if (!title) {
-        alert("Введите название.");
-        return null;
-      }
-
-      const durationMinutes = Number(durationMinutesInput.value);
-      if (Number.isNaN(durationMinutes) || durationMinutes <= 0) {
-        alert("Укажите длительность в минутах больше нуля.");
-        return null;
-      }
-
-      const durationMs = minutesToMs(durationMinutes);
-      const startMode = getStartMode();
-      const now = Date.now();
-      let startTime = now;
-      let startOffsetMinutes = 0;
-
-      if (startMode === "offset") {
-        startOffsetMinutes = Number(minutesAgoInput.value);
-
-        if (Number.isNaN(startOffsetMinutes) || startOffsetMinutes < 0) {
-          alert("Укажите корректное количество минут назад.");
-          return null;
+        if (aExpired !== bExpired) {
+          return aExpired ? 1 : -1;
         }
 
-        startTime = now - startOffsetMinutes * 60 * 1000;
-      }
-
-      return {
-        title,
-        description: descriptionInput.value.trim(),
-        durationMinutes,
-        durationMs,
-        startTime,
-        startMode,
-        startOffsetMinutes
-      };
-    }
-
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
-
-      const data = validateForm();
-      if (!data) return;
-
-      const existingId = editIdInput.value.trim();
-      const now = Date.now();
-
-      if (existingId) {
-        const index = records.findIndex((item) => item.id === existingId);
-        if (index !== -1) {
-          records[index] = {
-            ...records[index],
-            title: data.title,
-            description: data.description,
-            durationMinutes: data.durationMinutes,
-            durationMs: data.durationMs,
-            startTime: data.startTime,
-            endTime: data.startTime + data.durationMs,
-            startMode: data.startMode,
-            startOffsetMinutes: data.startOffsetMinutes,
-            updatedAt: now,
-            soundDismissed: false
-          };
-        }
-      } else {
-        records.unshift({
-          id: uid(),
-          title: data.title,
-          description: data.description,
-          durationMinutes: data.durationMinutes,
-          durationMs: data.durationMs,
-          startTime: data.startTime,
-          endTime: data.startTime + data.durationMs,
-          startMode: data.startMode,
-          startOffsetMinutes: data.startOffsetMinutes,
-          createdAt: now,
-          updatedAt: now,
-          soundDismissed: false
-        });
-      }
-
-      saveRecords();
-      updateAlarmState();
-      render();
-      resetForm();
-    });
-
-    cancelEditBtn.addEventListener("click", resetForm);
-
-    clearAllBtn.addEventListener("click", () => {
-      if (!records.length) return;
-      if (!confirm("Удалить все записи?")) return;
-
-      records = [];
-      saveRecords();
-      updateAlarmState();
-      render();
-      resetForm();
-    });
-
-    stopAllSoundBtn.addEventListener("click", () => {
-      let changed = false;
-      records = records.map((record) => {
-        if (record.endTime <= Date.now() && !record.soundDismissed) {
-          changed = true;
-          return { ...record, soundDismissed: true };
-        }
-        return record;
+        return (b.lastRunAt || 0) - (a.lastRunAt || 0);
       });
+    }
 
-      if (changed) {
-        saveRecords();
-        updateAlarmState();
-        render();
-      } else {
-        stopAlarmLoop();
+    function render() {
+      sortRecords();
+      stats.textContent = `Записей: ${records.length}`;
+
+      if (!records.length) {
+        tableContainer.innerHTML = `
+          <div class="empty">
+            Пока нет записей. Нажмите <code>Добавить запись</code>, чтобы создать первый таймер.
+          </div>
+        `;
+        return;
       }
-    });
 
-    function startEdit(id) {
+      const now = Date.now();
+
+      tableContainer.innerHTML = `
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 18%;">Название</th>
+                <th style="width: 26%;">Описание</th>
+                <th style="width: 10%;">Длительность</th>
+                <th style="width: 16%;">Обратный отсчёт</th>
+                <th style="width: 16%;">Последний запуск</th>
+                <th style="width: 14%;">Действия</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${records.map((record) => {
+                const remaining = record.endTime - now;
+                const expired = remaining <= 0;
+
+                return `
+                  <tr class="${expired ? "expired" : ""}">
+                    <td>
+                      <div class="cell-title">${escapeHtml(record.title)}</div>
+                      <div>
+                        <span class="pill ${expired ? "expired" : ""}">
+                          ${expired ? "Время вышло" : "Активен"}
+                        </span>
+                      </div>
+                    </td>
+
+                    <td>
+                      <div class="cell-text">${escapeHtml(record.description || "Без описания")}</div>
+                      ${
+                        expired && !record.soundDismissed
+                          ? `<div class="danger-note">Идёт звуковой сигнал</div>`
+                          : ""
+                      }
+                    </td>
+
+                    <td>
+                      <div>${escapeHtml(formatDurationMinutes(record.durationMinutes))}</div>
+                    </td>
+
+                    <td>
+                      <div class="countdown ${expired ? "expired" : ""}">
+                        ${escapeHtml(formatCountdown(remaining))}
+                      </div>
+                    </td>
+
+                    <td>
+                      <div>${escapeHtml(formatDateTime(record.lastRunAt))}</div>
+                      ${
+                        record.lastRunMode === "offset"
+                          ? `<div class="subline">Сдвиг: ${escapeHtml(String(record.lastRunOffsetMinutes || 0))} мин назад</div>`
+                          : `<div class="subline">От текущего времени</div>`
+                      }
+                    </td>
+
+                    <td>
+                      <div class="actions">
+                        <button class="btn-primary btn-small" type="button" data-action="restart" data-id="${record.id}">
+                          Повторить
+                        </button>
+                        <button class="btn-secondary btn-small" type="button" data-action="edit" data-id="${record.id}">
+                          Изменить
+                        </button>
+                        <button class="btn-danger btn-small" type="button" data-action="delete" data-id="${record.id}">
+                          Удалить
+                        </button>
+                        ${
+                          expired && !record.soundDismissed
+                            ? `
+                              <button class="btn-secondary btn-small" type="button" data-action="dismiss" data-id="${record.id}">
+                                Выключить звук
+                              </button>
+                            `
+                            : ""
+                        }
+                      </div>
+                    </td>
+                  </tr>
+                `;
+              }).join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function openEntryModalForCreate() {
+      entryModalTitle.textContent = "Новая запись";
+      saveEntryBtn.textContent = "Сохранить";
+      entryEditId.value = "";
+      entryTitle.value = "";
+      entryDescription.value = "";
+      entryDurationMinutes.value = "5";
+      entryModalBackdrop.classList.add("open");
+      setTimeout(() => entryTitle.focus(), 0);
+    }
+
+    function openEntryModalForEdit(id) {
       const record = records.find((item) => item.id === id);
       if (!record) return;
 
-      editIdInput.value = record.id;
-      titleInput.value = record.title;
-      descriptionInput.value = record.description || "";
-      durationMinutesInput.value = String(record.durationMinutes || Math.round(record.durationMs / 60000));
+      entryModalTitle.textContent = "Изменение записи";
+      saveEntryBtn.textContent = "Сохранить изменения";
+      entryEditId.value = record.id;
+      entryTitle.value = record.title;
+      entryDescription.value = record.description || "";
+      entryDurationMinutes.value = String(record.durationMinutes);
+      entryModalBackdrop.classList.add("open");
+      setTimeout(() => entryTitle.focus(), 0);
+    }
 
-      if (record.startMode === "offset") {
-        setStartMode("offset");
-        minutesAgoInput.value = String(record.startOffsetMinutes || 0);
-      } else {
-        setStartMode("now");
-        minutesAgoInput.value = "0";
+    function closeEntryModal() {
+      entryModalBackdrop.classList.remove("open");
+      entryForm.reset();
+      entryEditId.value = "";
+      entryDurationMinutes.value = "5";
+    }
+
+    function openRestartModal(id) {
+      const record = records.find((item) => item.id === id);
+      if (!record) return;
+
+      restartRecordId.value = id;
+      restartMinutesAgo.value = "0";
+      setRestartMode("now");
+      restartModalBackdrop.classList.add("open");
+    }
+
+    function closeRestartModal() {
+      restartModalBackdrop.classList.remove("open");
+      restartForm.reset();
+      restartRecordId.value = "";
+      restartMinutesAgo.value = "0";
+      setRestartMode("now");
+    }
+
+    function createRecord(data) {
+      const now = Date.now();
+
+      records.unshift({
+        id: uid(),
+        title: data.title,
+        description: data.description,
+        durationMinutes: data.durationMinutes,
+        durationMs: minutesToMs(data.durationMinutes),
+        startTime: now,
+        endTime: now + minutesToMs(data.durationMinutes),
+        lastRunAt: now,
+        lastRunMode: "now",
+        lastRunOffsetMinutes: 0,
+        createdAt: now,
+        updatedAt: now,
+        soundDismissed: false
+      });
+
+      saveRecords();
+      updateAlarmState();
+      render();
+    }
+
+    function updateRecord(id, data) {
+      const index = records.findIndex((item) => item.id === id);
+      if (index === -1) return;
+
+      const now = Date.now();
+      const current = records[index];
+      const durationMs = minutesToMs(data.durationMinutes);
+      const elapsedSinceLastRun = Math.max(0, now - current.startTime);
+      const newEndTime = current.startTime + durationMs;
+
+      records[index] = {
+        ...current,
+        title: data.title,
+        description: data.description,
+        durationMinutes: data.durationMinutes,
+        durationMs,
+        endTime: newEndTime,
+        updatedAt: now,
+        soundDismissed: current.endTime <= now ? false : current.soundDismissed
+      };
+
+      if (elapsedSinceLastRun >= durationMs) {
+        records[index].endTime = current.startTime + durationMs;
       }
 
-      formTitle.textContent = "Редактирование записи";
-      submitBtn.textContent = "Сохранить изменения";
-      cancelEditBtn.classList.remove("hidden");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      saveRecords();
+      updateAlarmState();
+      render();
+    }
+
+    function restartRecord(id, mode, minutesAgoValue) {
+      const index = records.findIndex((item) => item.id === id);
+      if (index === -1) return;
+
+      const now = Date.now();
+      const offsetMinutes = mode === "offset" ? minutesAgoValue : 0;
+      const startTime = now - minutesToMs(offsetMinutes);
+
+      records[index] = {
+        ...records[index],
+        startTime,
+        endTime: startTime + records[index].durationMs,
+        lastRunAt: now,
+        lastRunMode: mode,
+        lastRunOffsetMinutes: offsetMinutes,
+        updatedAt: now,
+        soundDismissed: false
+      };
+
+      saveRecords();
+      updateAlarmState();
+      render();
     }
 
     function deleteRecord(id) {
@@ -789,30 +964,6 @@
       if (!confirm(`Удалить запись "${record.title}"?`)) return;
 
       records = records.filter((item) => item.id !== id);
-      saveRecords();
-      updateAlarmState();
-      render();
-
-      if (editIdInput.value === id) {
-        resetForm();
-      }
-    }
-
-    function restartRecord(id) {
-      const index = records.findIndex((item) => item.id === id);
-      if (index === -1) return;
-
-      const now = Date.now();
-      records[index] = {
-        ...records[index],
-        startTime: now,
-        endTime: now + records[index].durationMs,
-        startMode: "now",
-        startOffsetMinutes: 0,
-        updatedAt: now,
-        soundDismissed: false
-      };
-
       saveRecords();
       updateAlarmState();
       render();
@@ -833,117 +984,146 @@
       render();
     }
 
-    function render() {
-      stats.textContent = `Записей: ${records.length}`;
+    openCreateBtn.addEventListener("click", async () => {
+      await unlockAudio();
+      openEntryModalForCreate();
+    });
 
-      if (!records.length) {
-        timerList.innerHTML = `
-          <div class="empty">
-            Пока нет записей. Добавьте первый таймер слева.
-          </div>
-        `;
+    closeEntryModalBtn.addEventListener("click", closeEntryModal);
+    cancelEntryModalBtn.addEventListener("click", closeEntryModal);
+
+    entryModalBackdrop.addEventListener("click", (event) => {
+      if (event.target === entryModalBackdrop) {
+        closeEntryModal();
+      }
+    });
+
+    restartModalBackdrop.addEventListener("click", (event) => {
+      if (event.target === restartModalBackdrop) {
+        closeRestartModal();
+      }
+    });
+
+    closeRestartModalBtn.addEventListener("click", closeRestartModal);
+    cancelRestartModalBtn.addEventListener("click", closeRestartModal);
+
+    entryForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await unlockAudio();
+
+      const title = entryTitle.value.trim();
+      const description = entryDescription.value.trim();
+      const durationMinutes = Number(entryDurationMinutes.value);
+
+      if (!title) {
+        alert("Введите название.");
         return;
       }
 
-      const now = Date.now();
+      if (Number.isNaN(durationMinutes) || durationMinutes <= 0) {
+        alert("Укажите длительность таймера в минутах больше нуля.");
+        return;
+      }
 
-      timerList.innerHTML = records.map((record) => {
-        const remaining = record.endTime - now;
-        const expired = remaining <= 0;
-        const parts = getTimeParts(remaining);
+      const editId = entryEditId.value.trim();
 
-        return `
-          <article class="card ${expired ? "expired" : ""}">
-            <div class="card-header">
-              <div class="card-title-wrap">
-                <h3 class="card-title">${escapeHtml(record.title)}</h3>
-                <div class="card-desc">${escapeHtml(record.description || "Без описания")}</div>
-              </div>
-              <div class="badge ${expired ? "expired" : ""}">
-                ${expired ? "Время вышло" : "Активен"}
-              </div>
-            </div>
+      if (editId) {
+        updateRecord(editId, { title, description, durationMinutes });
+      } else {
+        createRecord({ title, description, durationMinutes });
+      }
 
-            <div class="timer">
-              <div class="time-box">
-                <div class="time-value">${pad(parts.days)}</div>
-                <div class="time-label">дней</div>
-              </div>
-              <div class="time-box">
-                <div class="time-value">${pad(parts.hours)}</div>
-                <div class="time-label">часов</div>
-              </div>
-              <div class="time-box">
-                <div class="time-value">${pad(parts.minutes)}</div>
-                <div class="time-label">минут</div>
-              </div>
-              <div class="time-box">
-                <div class="time-value">${pad(parts.seconds)}</div>
-                <div class="time-label">секунд</div>
-              </div>
-            </div>
+      closeEntryModal();
+    });
 
-            <div class="card-info">
-              <div class="info-box">
-                <div class="info-label">Длительность</div>
-                <div class="info-value">${escapeHtml(String(record.durationMinutes || Math.round(record.durationMs / 60000)))} мин</div>
-              </div>
-              <div class="info-box">
-                <div class="info-label">Старт</div>
-                <div class="info-value">${escapeHtml(formatDateTime(record.startTime))}</div>
-              </div>
-              <div class="info-box">
-                <div class="info-label">Режим</div>
-                <div class="info-value">
-                  ${record.startMode === "offset" ? "Запуск с вычетом минут" : "От текущего времени"}
-                </div>
-              </div>
-              <div class="info-box">
-                <div class="info-label">Минут назад</div>
-                <div class="info-value">
-                  ${record.startMode === "offset" ? escapeHtml(String(record.startOffsetMinutes || 0)) : "0"}
-                </div>
-              </div>
-            </div>
+    restartForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await unlockAudio();
 
-            ${expired && !record.soundDismissed ? `
-              <div class="danger-text" style="margin-bottom: 14px; font-weight: 600;">
-                Таймер достиг нуля. Идёт звуковой сигнал.
-              </div>
-            ` : ""}
+      const id = restartRecordId.value.trim();
+      if (!id) return;
 
-            <div class="card-actions">
-              <button class="btn-primary small-btn" data-action="restart" data-id="${record.id}" type="button">
-                Повторить отсчёт
-              </button>
-              <button class="btn-secondary small-btn" data-action="edit" data-id="${record.id}" type="button">
-                Изменить
-              </button>
-              <button class="btn-danger small-btn" data-action="delete" data-id="${record.id}" type="button">
-                Удалить
-              </button>
-              ${expired && !record.soundDismissed ? `
-                <button class="btn-secondary small-btn" data-action="dismiss" data-id="${record.id}" type="button">
-                  Выключить звук
-                </button>
-              ` : ""}
-            </div>
-          </article>
-        `;
-      }).join("");
-    }
+      const mode = getRestartMode();
+      let minutesAgoValue = 0;
 
-    timerList.addEventListener("click", (event) => {
+      if (mode === "offset") {
+        minutesAgoValue = Number(restartMinutesAgo.value);
+
+        if (Number.isNaN(minutesAgoValue) || minutesAgoValue < 0) {
+          alert("Укажите корректное количество минут сдвига.");
+          return;
+        }
+      }
+
+      restartRecord(id, mode, minutesAgoValue);
+      closeRestartModal();
+    });
+
+    tableContainer.addEventListener("click", async (event) => {
       const button = event.target.closest("button[data-action]");
       if (!button) return;
 
-      const { action, id } = button.dataset;
-      if (!id) return;
+      await unlockAudio();
 
-      if (action === "edit") startEdit(id);
-      if (action === "delete") deleteRecord(id);
-      if (action === "restart") restartRecord(id);
-      if (action === "dismiss") dismissSound(id);
+      const id = button.dataset.id;
+      const action = button.dataset.action;
+
+      if (!id || !action) return;
+
+      if (action === "edit") {
+        openEntryModalForEdit(id);
+      }
+
+      if (action === "restart") {
+        openRestartModal(id);
+      }
+
+      if (action === "delete") {
+        deleteRecord(id);
+      }
+
+      if (action === "dismiss") {
+        dismissSound(id);
+      }
+    });
+
+    clearAllBtn.addEventListener("click", () => {
+      if (!records.length) return;
+      if (!confirm("Удалить все записи?")) return;
+
+      records = [];
+      saveRecords();
+      updateAlarmState();
+      render();
+      closeEntryModal();
+      closeRestartModal();
+    });
+
+    stopAllSoundBtn.addEventListener("click", () => {
+      let changed = false;
+
+      records = records.map((record) => {
+        if (record.endTime <= Date.now() && !record.soundDismissed) {
+          changed = true;
+          return { ...record, soundDismissed: true };
+        }
+        return record;
+      });
+
+      if (changed) {
+        saveRecords();
+        updateAlarmState();
+        render();
+      } else {
+        stopAlarmLoop();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeEntryModal();
+        closeRestartModal();
+      }
     });
 
     function tick() {
@@ -951,18 +1131,13 @@
       render();
     }
 
-    resetForm();
-    updateAlarmState();
     render();
+    updateAlarmState();
     setInterval(tick, 1000);
 
-    document.addEventListener("click", () => {
-      ensureAudioContext();
-    });
-
-    document.addEventListener("keydown", () => {
-      ensureAudioContext();
-    });
+    document.addEventListener("click", unlockAudio, { once: true });
+    document.addEventListener("keydown", unlockAudio, { once: true });
+    document.addEventListener("touchstart", unlockAudio, { once: true });
   </script>
 </body>
 </html>

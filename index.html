@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Таймеры обратного отсчёта</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-2: #1f2937;
+      --card: #111827;
+      --muted: #94a3b8;
+      --text: #e5e7eb;
+      --accent: #38bdf8;
+      --accent-2: #0ea5e9;
+      --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.14);
+      --ok: #22c55e;
+      --border: rgba(255, 255, 255, 0.08);
+      --input: #0b1220;
+      --shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      --warning-ring: 0 0 0 1px rgba(239, 68, 68, 0.4), 0 0 18px rgba(239, 68, 68, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(56, 189, 248, 0.08), transparent 28%),
+        linear-gradient(180deg, #020617 0%, #0f172a 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .container {
+      width: min(1120px, calc(100% - 32px));
+      margin: 32px auto 48px;
+    }
+
+    .header {
+      margin-bottom: 24px;
+    }
+
+    .title {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 800;
+      margin: 0 0 10px;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+      max-width: 900px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 920px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: rgba(17, 24, 39, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .panel h2 {
+      margin: 0 0 16px;
+      font-size: 20px;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .field input,
+    .field textarea,
+    .field select {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: var(--input);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font: inherit;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .field textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus {
+      border-color: rgba(56, 189, 248, 0.65);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media (max-width: 520px) {
+      .row,
+      .row-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 11px 16px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.05s ease, opacity 0.2s ease, background 0.2s ease;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(180deg, var(--accent), var(--accent-2));
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #243041;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.18);
+      color: #fecaca;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar .meta {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .empty {
+      border: 1px dashed var(--border);
+      color: var(--muted);
+      border-radius: 16px;
+      padding: 28px;
+      text-align: center;
+      background: rgba(15, 23, 42, 0.4);
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(17,24,39,1), rgba(15,23,42,0.96));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-1px);
+    }
+
+    .card.expired {
+      border-color: rgba(239, 68, 68, 0.55);
+      background:
+        linear-gradient(180deg, rgba(60, 12, 18, 0.85), rgba(30, 10, 16, 0.92)),
+        linear-gradient(180deg, rgba(17,24,39,1), rgba(15,23,42,0.96));
+      box-shadow: var(--warning-ring);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+
+    .card-title-wrap {
+      min-width: 0;
+    }
+
+    .card-title {
+      margin: 0 0 6px;
+      font-size: 21px;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .card-desc {
+      color: var(--muted);
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .badge {
+      flex-shrink: 0;
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(56, 189, 248, 0.12);
+      color: #bae6fd;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+    }
+
+    .badge.expired {
+      background: rgba(239, 68, 68, 0.16);
+      color: #fecaca;
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .timer {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 16px 0 14px;
+    }
+
+    @media (max-width: 720px) {
+      .timer {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .time-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 10px;
+      text-align: center;
+    }
+
+    .time-value {
+      font-size: clamp(22px, 4vw, 34px);
+      font-weight: 800;
+      line-height: 1.05;
+      margin-bottom: 5px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .time-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .card-info {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    @media (max-width: 720px) {
+      .card-info {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .info-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .info-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .info-value {
+      font-size: 14px;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .small-btn {
+      padding: 9px 12px;
+      font-size: 14px;
+    }
+
+    .mode-box {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(255,255,255,0.02);
+      margin-bottom: 14px;
+    }
+
+    .mode-box label.inline {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin: 0 0 10px;
+      cursor: pointer;
+      color: var(--text);
+    }
+
+    .mode-box input[type="radio"] {
+      width: auto;
+      margin: 0;
+      accent-color: var(--accent);
+    }
+
+    .footer-note {
+      margin-top: 20px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .danger-text {
+      color: #fecaca;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1 class="title">Таймеры обратного отсчёта</h1>
+      <p class="subtitle">
+        Добавляйте записи с названием, описанием и длительностью отсчёта.
+        По умолчанию старт идёт от текущего времени на компьютере, но можно указать
+        время в прошлом, от которого нужно считать.
+      </p>
+    </header>
+
+    <div class="layout">
+      <section class="panel">
+        <h2 id="formTitle">Новая запись</h2>
+
+        <form id="timerForm">
+          <input type="hidden" id="editId" />
+
+          <div class="field">
+            <label for="title">Название</label>
+            <input id="title" type="text" placeholder="Например: Инкубация образца" required maxlength="120" />
+          </div>
+
+          <div class="field">
+            <label for="description">Описание</label>
+            <textarea id="description" placeholder="Комментарий, детали, инструкция..." maxlength="1000"></textarea>
+          </div>
+
+          <div class="field">
+            <label>Длительность отсчёта</label>
+            <div class="row">
+              <input id="days" type="number" min="0" value="0" placeholder="Дни" />
+              <input id="hours" type="number" min="0" value="0" placeholder="Часы" />
+              <input id="minutes" type="number" min="0" value="5" placeholder="Минуты" />
+            </div>
+            <div class="hint">Сколько времени должно пройти до наступления нуля.</div>
+          </div>
+
+          <div class="mode-box">
+            <label class="inline">
+              <input type="radio" name="startMode" value="now" checked />
+              <span>Начать отсчёт от текущего времени на компьютере</span>
+            </label>
+
+            <label class="inline">
+              <input type="radio" name="startMode" value="custom" />
+              <span>Указать точное время в прошлом</span>
+            </label>
+
+            <div id="customStartWrapper" class="field hidden" style="margin-top: 12px; margin-bottom: 0;">
+              <label for="customStart">Время старта</label>
+              <input id="customStart" type="datetime-local" />
+              <div class="hint">
+                Укажите дату и время старта. Например, если отсчёт должен считаться как будто начался раньше.
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn-primary" type="submit" id="submitBtn">Добавить запись</button>
+            <button class="btn-secondary hidden" type="button" id="cancelEditBtn">Отмена редактирования</button>
+          </div>
+        </form>
+
+        <div class="footer-note">
+          Данные хранятся локально в браузере. Позже это можно перенести на сервер и в БД
+          для нескольких пользователей без серьёзной переделки интерфейса.
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="toolbar">
+          <div>
+            <h2 style="margin-bottom: 6px;">Список таймеров</h2>
+            <div class="meta" id="stats">Записей: 0</div>
+          </div>
+          <div class="actions" style="margin-top: 0;">
+            <button class="btn-secondary small-btn" id="stopAllSoundBtn" type="button">Выключить звук</button>
+            <button class="btn-danger small-btn" id="clearAllBtn" type="button">Удалить все</button>
+          </div>
+        </div>
+
+        <div id="timerList" class="list"></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "countdown_timer_records_v1";
+
+    const form = document.getElementById("timerForm");
+    const formTitle = document.getElementById("formTitle");
+    const editIdInput = document.getElementById("editId");
+    const titleInput = document.getElementById("title");
+    const descriptionInput = document.getElementById("description");
+    const daysInput = document.getElementById("days");
+    const hoursInput = document.getElementById("hours");
+    const minutesInput = document.getElementById("minutes");
+    const customStartInput = document.getElementById("customStart");
+    const customStartWrapper = document.getElementById("customStartWrapper");
+    const submitBtn = document.getElementById("submitBtn");
+    const cancelEditBtn = document.getElementById("cancelEditBtn");
+    const timerList = document.getElementById("timerList");
+    const stats = document.getElementById("stats");
+    const clearAllBtn = document.getElementById("clearAllBtn");
+    const stopAllSoundBtn = document.getElementById("stopAllSoundBtn");
+
+    let records = loadRecords();
+    let activeAlarmTimerIds = new Set();
+    let audioContext = null;
+    let alarmInterval = null;
+
+    function loadRecords() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        console.error("Ошибка чтения localStorage:", error);
+        return [];
+      }
+    }
+
+    function saveRecords() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    }
+
+    function getStartMode() {
+      return document.querySelector('input[name="startMode"]:checked')?.value || "now";
+    }
+
+    function setStartMode(mode) {
+      const radio = document.querySelector(`input[name="startMode"][value="${mode}"]`);
+      if (radio) radio.checked = true;
+      customStartWrapper.classList.toggle("hidden", mode !== "custom");
+    }
+
+    document.querySelectorAll('input[name="startMode"]').forEach((radio) => {
+      radio.addEventListener("change", () => {
+        setStartMode(getStartMode());
+      });
+    });
+
+    function durationToMs(days, hours, minutes) {
+      return (
+        (Number(days) || 0) * 24 * 60 * 60 * 1000 +
+        (Number(hours) || 0) * 60 * 60 * 1000 +
+        (Number(minutes) || 0) * 60 * 1000
+      );
+    }
+
+    function formatDateTime(ts) {
+      const date = new Date(ts);
+      return date.toLocaleString("ru-RU");
+    }
+
+    function pad(num) {
+      return String(num).padStart(2, "0");
+    }
+
+    function getTimeParts(msLeft) {
+      const safe = Math.max(0, msLeft);
+      const totalSeconds = Math.floor(safe / 1000);
+      const days = Math.floor(totalSeconds / (24 * 3600));
+      const hours = Math.floor((totalSeconds % (24 * 3600)) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      return { days, hours, minutes, seconds };
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function uid() {
+      return crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random());
+    }
+
+    function ensureAudioContext() {
+      if (!audioContext) {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (Ctx) {
+          audioContext = new Ctx();
+        }
+      }
+      if (audioContext && audioContext.state === "suspended") {
+        audioContext.resume().catch(() => {});
+      }
+    }
+
+    function beepOnce(duration = 250, frequency = 880, volume = 0.04) {
+      try {
+        ensureAudioContext();
+        if (!audioContext) return;
+
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.type = "sine";
+        oscillator.frequency.value = frequency;
+        gainNode.gain.value = volume;
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        const now = audioContext.currentTime;
+        gainNode.gain.setValueAtTime(0.0001, now);
+        gainNode.gain.exponentialRampToValueAtTime(volume, now + 0.02);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, now + duration / 1000);
+
+        oscillator.start(now);
+        oscillator.stop(now + duration / 1000 + 0.02);
+      } catch (error) {
+        console.error("Ошибка воспроизведения сигнала:", error);
+      }
+    }
+
+    function startAlarmLoopIfNeeded() {
+      if (alarmInterval || activeAlarmTimerIds.size === 0) return;
+
+      beepOnce(220, 880, 0.04);
+      alarmInterval = setInterval(() => {
+        if (activeAlarmTimerIds.size === 0) {
+          stopAlarmLoop();
+          return;
+        }
+        beepOnce(180, 880, 0.035);
+        setTimeout(() => beepOnce(180, 660, 0.03), 220);
+      }, 1400);
+    }
+
+    function stopAlarmLoop() {
+      if (alarmInterval) {
+        clearInterval(alarmInterval);
+        alarmInterval = null;
+      }
+    }
+
+    function updateAlarmState() {
+      const now = Date.now();
+      activeAlarmTimerIds.clear();
+
+      for (const record of records) {
+        const remaining = record.endTime - now;
+        if (remaining <= 0 && !record.soundDismissed) {
+          activeAlarmTimerIds.add(record.id);
+        }
+      }
+
+      if (activeAlarmTimerIds.size > 0) {
+        startAlarmLoopIfNeeded();
+      } else {
+        stopAlarmLoop();
+      }
+    }
+
+    function resetForm() {
+      form.reset();
+      editIdInput.value = "";
+      titleInput.value = "";
+      descriptionInput.value = "";
+      daysInput.value = "0";
+      hoursInput.value = "0";
+      minutesInput.value = "5";
+      customStartInput.value = "";
+      formTitle.textContent = "Новая запись";
+      submitBtn.textContent = "Добавить запись";
+      cancelEditBtn.classList.add("hidden");
+      setStartMode("now");
+    }
+
+    function validateForm() {
+      const title = titleInput.value.trim();
+      if (!title) {
+        alert("Введите название.");
+        return null;
+      }
+
+      const durationMs = durationToMs(daysInput.value, hoursInput.value, minutesInput.value);
+      if (durationMs <= 0) {
+        alert("Укажите длительность больше нуля.");
+        return null;
+      }
+
+      const startMode = getStartMode();
+      let startTime = Date.now();
+
+      if (startMode === "custom") {
+        if (!customStartInput.value) {
+          alert("Укажите время старта.");
+          return null;
+        }
+
+        startTime = new Date(customStartInput.value).getTime();
+        if (Number.isNaN(startTime)) {
+          alert("Некорректное время старта.");
+          return null;
+        }
+      }
+
+      return {
+        title,
+        description: descriptionInput.value.trim(),
+        durationMs,
+        startTime,
+        startMode
+      };
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const data = validateForm();
+      if (!data) return;
+
+      const existingId = editIdInput.value.trim();
+      const now = Date.now();
+
+      if (existingId) {
+        const index = records.findIndex((item) => item.id === existingId);
+        if (index !== -1) {
+          records[index] = {
+            ...records[index],
+            title: data.title,
+            description: data.description,
+            durationMs: data.durationMs,
+            startTime: data.startTime,
+            endTime: data.startTime + data.durationMs,
+            startMode: data.startMode,
+            updatedAt: now,
+            soundDismissed: false
+          };
+        }
+      } else {
+        records.unshift({
+          id: uid(),
+          title: data.title,
+          description: data.description,
+          durationMs: data.durationMs,
+          startTime: data.startTime,
+          endTime: data.startTime + data.durationMs,
+          startMode: data.startMode,
+          createdAt: now,
+          updatedAt: now,
+          soundDismissed: false
+        });
+      }
+
+      saveRecords();
+      updateAlarmState();
+      render();
+      resetForm();
+    });
+
+    cancelEditBtn.addEventListener("click", resetForm);
+
+    clearAllBtn.addEventListener("click", () => {
+      if (!records.length) return;
+      const ok = confirm("Удалить все записи?");
+      if (!ok) return;
+
+      records = [];
+      saveRecords();
+      updateAlarmState();
+      render();
+      resetForm();
+    });
+
+    stopAllSoundBtn.addEventListener("click", () => {
+      let changed = false;
+      records = records.map((record) => {
+        if (record.endTime <= Date.now() && !record.soundDismissed) {
+          changed = true;
+          return { ...record, soundDismissed: true };
+        }
+        return record;
+      });
+
+      if (changed) {
+        saveRecords();
+        updateAlarmState();
+        render();
+      } else {
+        stopAlarmLoop();
+      }
+    });
+
+    function startEdit(id) {
+      const record = records.find((item) => item.id === id);
+      if (!record) return;
+
+      editIdInput.value = record.id;
+      titleInput.value = record.title;
+      descriptionInput.value = record.description || "";
+
+      const totalMinutes = Math.round(record.durationMs / 60000);
+      const days = Math.floor(totalMinutes / (24 * 60));
+      const hours = Math.floor((totalMinutes % (24 * 60)) / 60);
+      const minutes = totalMinutes % 60;
+
+      daysInput.value = String(days);
+      hoursInput.value = String(hours);
+      minutesInput.value = String(minutes);
+
+      if (record.startMode === "custom") {
+        setStartMode("custom");
+        const dt = new Date(record.startTime);
+        const offset = dt.getTimezoneOffset();
+        const local = new Date(dt.getTime() - offset * 60000).toISOString().slice(0, 16);
+        customStartInput.value = local;
+      } else {
+        setStartMode("now");
+        customStartInput.value = "";
+      }
+
+      formTitle.textContent = "Редактирование записи";
+      submitBtn.textContent = "Сохранить изменения";
+      cancelEditBtn.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function deleteRecord(id) {
+      const record = records.find((item) => item.id === id);
+      if (!record) return;
+
+      const ok = confirm(`Удалить запись "${record.title}"?`);
+      if (!ok) return;
+
+      records = records.filter((item) => item.id !== id);
+      saveRecords();
+      updateAlarmState();
+      render();
+
+      if (editIdInput.value === id) {
+        resetForm();
+      }
+    }
+
+    function restartRecord(id) {
+      const index = records.findIndex((item) => item.id === id);
+      if (index === -1) return;
+
+      const now = Date.now();
+      records[index] = {
+        ...records[index],
+        startTime: now,
+        endTime: now + records[index].durationMs,
+        startMode: "now",
+        updatedAt: now,
+        soundDismissed: false
+      };
+
+      saveRecords();
+      updateAlarmState();
+      render();
+    }
+
+    function dismissSound(id) {
+      const index = records.findIndex((item) => item.id === id);
+      if (index === -1) return;
+
+      records[index] = {
+        ...records[index],
+        soundDismissed: true,
+        updatedAt: Date.now()
+      };
+
+      saveRecords();
+      updateAlarmState();
+      render();
+    }
+
+    function render() {
+      stats.textContent = `Записей: ${records.length}`;
+
+      if (!records.length) {
+        timerList.innerHTML = `
+          <div class="empty">
+            Пока нет записей. Добавьте первый таймер слева.
+          </div>
+        `;
+        return;
+      }
+
+      const now = Date.now();
+
+      timerList.innerHTML = records.map((record) => {
+        const remaining = record.endTime - now;
+        const expired = remaining <= 0;
+        const parts = getTimeParts(remaining);
+
+        return `
+          <article class="card ${expired ? "expired" : ""}">
+            <div class="card-header">
+              <div class="card-title-wrap">
+                <h3 class="card-title">${escapeHtml(record.title)}</h3>
+                <div class="card-desc">${escapeHtml(record.description || "Без описания")}</div>
+              </div>
+              <div class="badge ${expired ? "expired" : ""}">
+                ${expired ? "Время вышло" : "Активен"}
+              </div>
+            </div>
+
+            <div class="timer">
+              <div class="time-box">
+                <div class="time-value">${pad(parts.days)}</div>
+                <div class="time-label">дней</div>
+              </div>
+              <div class="time-box">
+                <div class="time-value">${pad(parts.hours)}</div>
+                <div class="time-label">часов</div>
+              </div>
+              <div class="time-box">
+                <div class="time-value">${pad(parts.minutes)}</div>
+                <div class="time-label">минут</div>
+              </div>
+              <div class="time-box">
+                <div class="time-value">${pad(parts.seconds)}</div>
+                <div class="time-label">секунд</div>
+              </div>
+            </div>
+
+            <div class="card-info">
+              <div class="info-box">
+                <div class="info-label">Старт</div>
+                <div class="info-value">${escapeHtml(formatDateTime(record.startTime))}</div>
+              </div>
+              <div class="info-box">
+                <div class="info-label">Конец</div>
+                <div class="info-value">${escapeHtml(formatDateTime(record.endTime))}</div>
+              </div>
+              <div class="info-box">
+                <div class="info-label">Режим</div>
+                <div class="info-value">
+                  ${record.startMode === "custom" ? "Указано вручную" : "От текущего времени"}
+                </div>
+              </div>
+            </div>
+
+            ${expired && !record.soundDismissed ? `
+              <div class="danger-text" style="margin-bottom: 14px; font-weight: 600;">
+                Таймер достиг нуля. Идёт звуковой сигнал.
+              </div>
+            ` : ""}
+
+            <div class="card-actions">
+              <button class="btn-primary small-btn" data-action="restart" data-id="${record.id}" type="button">
+                Повторить отсчёт
+              </button>
+              <button class="btn-secondary small-btn" data-action="edit" data-id="${record.id}" type="button">
+                Изменить
+              </button>
+              <button class="btn-danger small-btn" data-action="delete" data-id="${record.id}" type="button">
+                Удалить
+              </button>
+              ${expired && !record.soundDismissed ? `
+                <button class="btn-secondary small-btn" data-action="dismiss" data-id="${record.id}" type="button">
+                  Выключить звук
+                </button>
+              ` : ""}
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    timerList.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+
+      const { action, id } = button.dataset;
+      if (!id) return;
+
+      if (action === "edit") startEdit(id);
+      if (action === "delete") deleteRecord(id);
+      if (action === "restart") restartRecord(id);
+      if (action === "dismiss") dismissSound(id);
+    });
+
+    function tick() {
+      updateAlarmState();
+      render();
+    }
+
+    resetForm();
+    updateAlarmState();
+    render();
+    setInterval(tick, 1000);
+
+    document.addEventListener("click", () => {
+      ensureAudioContext();
+    }, { once: false });
+
+    document.addEventListener("keydown", () => {
+      ensureAudioContext();
+    }, { once: false });
+  </script>
+</body>
+</html>

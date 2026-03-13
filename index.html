@@ -24,6 +24,7 @@
       --warning-soft: rgba(245, 158, 11, 0.12);
       --success-soft: rgba(34, 197, 94, 0.12);
       --move-soft: rgba(56, 189, 248, 0.1);
+      --move-border: rgba(56, 189, 248, 0.45);
     }
 
     * {
@@ -184,7 +185,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 1320px;
+      min-width: 1180px;
       table-layout: fixed;
     }
 
@@ -211,7 +212,7 @@
     }
 
     tbody tr {
-      transition: background 0.2s ease;
+      transition: background 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
     }
 
     tbody tr:hover {
@@ -227,7 +228,20 @@
     }
 
     tbody tr.move-mode {
+      cursor: grab;
       box-shadow: inset 3px 0 0 rgba(56, 189, 248, 0.6);
+    }
+
+    tbody tr.dragging {
+      opacity: 0.45;
+    }
+
+    tbody tr.drag-over-top {
+      box-shadow: inset 0 3px 0 var(--move-border);
+    }
+
+    tbody tr.drag-over-bottom {
+      box-shadow: inset 0 -3px 0 var(--move-border);
     }
 
     .name-cell {
@@ -331,11 +345,17 @@
       align-items: center;
     }
 
-    .move-actions {
-      display: flex;
-      gap: 8px;
+    .drag-hint {
+      display: inline-flex;
       align-items: center;
-      flex-wrap: nowrap;
+      color: #bae6fd;
+      background: var(--move-soft);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
     }
 
     .cell-stack {
@@ -553,7 +573,7 @@
           <button class="btn-secondary" id="stopAllSoundBtn" type="button">Выключить звук</button>
           <button class="btn-move" id="toggleReorderBtn" type="button">Поменять местами</button>
           <button class="btn-danger" id="clearAllBtn" type="button">Удалить все</button>
-          <span class="toolbar-note hidden" id="reorderNote">Режим перестановки включён. Используйте кнопки ↑ и ↓ у записей.</span>
+          <span class="toolbar-note hidden" id="reorderNote">Режим перестановки включён. Перетаскивайте строки мышкой.</span>
         </div>
       </div>
 
@@ -638,7 +658,7 @@
   <audio id="alarmAudio" preload="auto" src="sounds/alarm.mp3"></audio>
 
   <script>
-    const STORAGE_KEY = "countdown_timer_records_v8";
+    const STORAGE_KEY = "countdown_timer_records_v10";
 
     const tableContainer = document.getElementById("tableContainer");
     const stats = document.getElementById("stats");
@@ -673,6 +693,9 @@
     let alarmInterval = null;
     let audioUnlocked = false;
     let reorderMode = false;
+    let draggedRecordId = null;
+    let dragOverRecordId = null;
+    let dragOverPosition = null;
 
     function loadRecords() {
       try {
@@ -782,9 +805,7 @@
         alarmAudio.pause();
         alarmAudio.currentTime = 0;
         audioUnlocked = true;
-      } catch (error) {
-        // Ограничение браузера до первого взаимодействия.
-      }
+      } catch (error) {}
     }
 
     function playAlarmOnce() {
@@ -866,25 +887,32 @@
           <table>
             <thead>
               <tr>
-                <th style="width: 17%;">Название</th>
-                <th style="width: 11%;">Статус</th>
-                <th style="width: 23%;">Описание</th>
-                <th style="width: 9%;">Длительность</th>
-                <th style="width: 13%;">Обратный отсчёт</th>
-                <th style="width: 13%;">Последний запуск</th>
-                <th style="width: 6%;">Порядок</th>
-                <th style="width: 8%;">Действия</th>
+                <th style="width: 18%;">Название</th>
+                <th style="width: 12%;">Статус</th>
+                <th style="width: 26%;">Описание</th>
+                <th style="width: 10%;">Длительность</th>
+                <th style="width: 14%;">Обратный отсчёт</th>
+                <th style="width: 14%;">Последний запуск</th>
+                <th style="width: 16%;">Действия</th>
               </tr>
             </thead>
-            <tbody>
-              ${records.map((record, index) => {
+            <tbody id="recordsTbody">
+              ${records.map((record) => {
                 const status = getRecordStatus(record);
                 const expired = status === "expired";
                 const stopped = status === "stopped";
                 const remaining = stopped ? 0 : Math.max(0, record.endTime - now);
 
+                const dragClassTop = reorderMode && dragOverRecordId === record.id && dragOverPosition === "top" ? "drag-over-top" : "";
+                const dragClassBottom = reorderMode && dragOverRecordId === record.id && dragOverPosition === "bottom" ? "drag-over-bottom" : "";
+                const draggingClass = draggedRecordId === record.id ? "dragging" : "";
+
                 return `
-                  <tr class="${expired ? "expired" : stopped ? "stopped" : ""} ${reorderMode ? "move-mode" : ""}">
+                  <tr
+                    class="${expired ? "expired" : stopped ? "stopped" : ""} ${reorderMode ? "move-mode" : ""} ${dragClassTop} ${dragClassBottom} ${draggingClass}"
+                    data-record-id="${record.id}"
+                    ${reorderMode ? 'draggable="true"' : ""}
+                  >
                     <td>
                       <div class="name-cell">
                         <div class="record-title">${escapeHtml(record.title)}</div>
@@ -931,36 +959,29 @@
                     <td>
                       ${
                         reorderMode
-                          ? `
-                            <div class="move-actions">
-                              <button class="btn-move btn-small" type="button" data-action="move-up" data-id="${record.id}" ${index === 0 ? "disabled" : ""}>↑</button>
-                              <button class="btn-move btn-small" type="button" data-action="move-down" data-id="${record.id}" ${index === records.length - 1 ? "disabled" : ""}>↓</button>
+                          ? `<div class="drag-hint">Перетащите запись</div>`
+                          : `
+                            <div class="actions">
+                              <button class="btn-primary btn-small" type="button" data-action="restart" data-id="${record.id}">
+                                Повторить
+                              </button>
+
+                              ${
+                                expired && !record.soundDismissed
+                                  ? `<button class="btn-secondary btn-small" type="button" data-action="dismiss" data-id="${record.id}">Выключить звук</button>`
+                                  : `<button class="btn-warning btn-small" type="button" data-action="stop" data-id="${record.id}" ${stopped || expired ? "disabled" : ""}>Прекратить</button>`
+                              }
+
+                              <button class="btn-secondary btn-small" type="button" data-action="edit" data-id="${record.id}">
+                                Изменить
+                              </button>
+
+                              <button class="btn-danger btn-small" type="button" data-action="delete" data-id="${record.id}">
+                                Удалить
+                              </button>
                             </div>
                           `
-                          : `<div class="muted">${index + 1}</div>`
                       }
-                    </td>
-
-                    <td>
-                      <div class="actions">
-                        <button class="btn-primary btn-small" type="button" data-action="restart" data-id="${record.id}">
-                          Повторить
-                        </button>
-
-                        ${
-                          expired && !record.soundDismissed
-                            ? `<button class="btn-secondary btn-small" type="button" data-action="dismiss" data-id="${record.id}">Выключить звук</button>`
-                            : `<button class="btn-warning btn-small" type="button" data-action="stop" data-id="${record.id}" ${stopped || expired ? "disabled" : ""}>Прекратить</button>`
-                        }
-
-                        <button class="btn-secondary btn-small" type="button" data-action="edit" data-id="${record.id}">
-                          Изменить
-                        </button>
-
-                        <button class="btn-danger btn-small" type="button" data-action="delete" data-id="${record.id}">
-                          Удалить
-                        </button>
-                      </div>
                     </td>
                   </tr>
                 `;
@@ -969,37 +990,107 @@
           </table>
         </div>
       `;
+
+      if (reorderMode) {
+        bindDragAndDrop();
+      }
     }
 
-    function swapRecords(indexA, indexB) {
-      if (
-        indexA < 0 || indexB < 0 ||
-        indexA >= records.length || indexB >= records.length ||
-        indexA === indexB
-      ) {
+    function bindDragAndDrop() {
+      const rows = tableContainer.querySelectorAll("tr[data-record-id]");
+      rows.forEach((row) => {
+        row.addEventListener("dragstart", onDragStart);
+        row.addEventListener("dragover", onDragOver);
+        row.addEventListener("dragleave", onDragLeave);
+        row.addEventListener("drop", onDrop);
+        row.addEventListener("dragend", onDragEnd);
+      });
+    }
+
+    function onDragStart(event) {
+      const row = event.currentTarget;
+      draggedRecordId = row.dataset.recordId;
+      dragOverRecordId = null;
+      dragOverPosition = null;
+      row.classList.add("dragging");
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("text/plain", draggedRecordId);
+    }
+
+    function onDragOver(event) {
+      event.preventDefault();
+      const row = event.currentTarget;
+      const targetId = row.dataset.recordId;
+
+      if (!draggedRecordId || draggedRecordId === targetId) {
+        dragOverRecordId = null;
+        dragOverPosition = null;
+        render();
         return;
       }
 
-      const temp = records[indexA];
-      records[indexA] = records[indexB];
-      records[indexB] = temp;
-
-      saveRecords();
+      const rect = row.getBoundingClientRect();
+      const middleY = rect.top + rect.height / 2;
+      dragOverRecordId = targetId;
+      dragOverPosition = event.clientY < middleY ? "top" : "bottom";
       render();
     }
 
-    function moveRecordUp(id) {
-      const index = records.findIndex((item) => item.id === id);
-      if (index > 0) {
-        swapRecords(index, index - 1);
-      }
+    function onDragLeave(event) {
+      const row = event.currentTarget;
+      const related = event.relatedTarget;
+      if (related && row.contains(related)) return;
     }
 
-    function moveRecordDown(id) {
-      const index = records.findIndex((item) => item.id === id);
-      if (index !== -1 && index < records.length - 1) {
-        swapRecords(index, index + 1);
+    function onDrop(event) {
+      event.preventDefault();
+      const targetRow = event.currentTarget;
+      const targetId = targetRow.dataset.recordId;
+      const sourceId = draggedRecordId;
+
+      if (!sourceId || !targetId || sourceId === targetId) {
+        clearDragState();
+        render();
+        return;
       }
+
+      const sourceIndex = records.findIndex((item) => item.id === sourceId);
+      const targetIndex = records.findIndex((item) => item.id === targetId);
+
+      if (sourceIndex === -1 || targetIndex === -1) {
+        clearDragState();
+        render();
+        return;
+      }
+
+      const [moved] = records.splice(sourceIndex, 1);
+
+      let insertIndex = targetIndex;
+      if (dragOverPosition === "bottom") {
+        insertIndex = sourceIndex < targetIndex ? targetIndex : targetIndex + 1;
+      } else {
+        insertIndex = sourceIndex < targetIndex ? targetIndex - 1 : targetIndex;
+      }
+
+      if (insertIndex < 0) insertIndex = 0;
+      if (insertIndex > records.length) insertIndex = records.length;
+
+      records.splice(insertIndex, 0, moved);
+
+      saveRecords();
+      clearDragState();
+      render();
+    }
+
+    function onDragEnd() {
+      clearDragState();
+      render();
+    }
+
+    function clearDragState() {
+      draggedRecordId = null;
+      dragOverRecordId = null;
+      dragOverPosition = null;
     }
 
     function openEntryModalForCreate() {
@@ -1194,6 +1285,7 @@
 
     toggleReorderBtn.addEventListener("click", () => {
       reorderMode = !reorderMode;
+      clearDragState();
       render();
     });
 
@@ -1270,6 +1362,7 @@
     tableContainer.addEventListener("click", async (event) => {
       const button = event.target.closest("button[data-action]");
       if (!button) return;
+      if (reorderMode) return;
 
       await unlockAudio();
 
@@ -1283,8 +1376,6 @@
       if (action === "delete") deleteRecord(id);
       if (action === "dismiss") dismissSound(id);
       if (action === "stop") stopRecord(id);
-      if (action === "move-up") moveRecordUp(id);
-      if (action === "move-down") moveRecordDown(id);
     });
 
     clearAllBtn.addEventListener("click", () => {
@@ -1294,6 +1385,7 @@
       records = [];
       saveRecords();
       updateAlarmState();
+      clearDragState();
       render();
       closeEntryModal();
       closeRestartModal();

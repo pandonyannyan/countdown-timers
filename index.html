@@ -8,20 +8,21 @@
     :root {
       --bg: #0f172a;
       --panel: #111827;
-      --panel-2: #1f2937;
-      --card: #111827;
       --muted: #94a3b8;
       --text: #e5e7eb;
       --accent: #38bdf8;
       --accent-2: #0ea5e9;
       --danger: #ef4444;
-      --danger-soft: rgba(239, 68, 68, 0.14);
-      --warning-border: rgba(239, 68, 68, 0.45);
+      --warning: #f59e0b;
+      --success: #22c55e;
       --border: rgba(255, 255, 255, 0.08);
       --input: #0b1220;
       --shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
       --shadow-lg: 0 24px 70px rgba(0, 0, 0, 0.42);
       --overlay: rgba(2, 6, 23, 0.7);
+      --danger-soft: rgba(239, 68, 68, 0.12);
+      --warning-soft: rgba(245, 158, 11, 0.12);
+      --success-soft: rgba(34, 197, 94, 0.12);
     }
 
     * {
@@ -31,6 +32,8 @@
     body {
       margin: 0;
       font-family: Inter, Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.4;
       background:
         radial-gradient(circle at top, rgba(56, 189, 248, 0.08), transparent 28%),
         linear-gradient(180deg, #020617 0%, #0f172a 100%);
@@ -39,22 +42,17 @@
     }
 
     .container {
-      width: min(1280px, calc(100% - 32px));
+      width: min(1320px, calc(100% - 32px));
       margin: 32px auto 48px;
     }
 
     .header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 16px;
       margin-bottom: 20px;
-      flex-wrap: wrap;
     }
 
-    .title-wrap h1 {
+    .title {
       margin: 0 0 10px;
-      font-size: clamp(28px, 4vw, 42px);
+      font-size: clamp(28px, 4vw, 40px);
       font-weight: 800;
       letter-spacing: -0.02em;
     }
@@ -62,12 +60,11 @@
     .subtitle {
       margin: 0;
       color: var(--muted);
-      line-height: 1.5;
-      max-width: 900px;
+      max-width: 960px;
     }
 
     .panel {
-      background: rgba(17, 24, 39, 0.9);
+      background: rgba(17, 24, 39, 0.92);
       border: 1px solid var(--border);
       border-radius: 18px;
       padding: 18px;
@@ -77,17 +74,17 @@
 
     .toolbar {
       display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .toolbar-top {
+      display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      margin-bottom: 16px;
       flex-wrap: wrap;
-    }
-
-    .toolbar-left {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
     }
 
     .toolbar-title {
@@ -105,16 +102,20 @@
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
+      justify-content: flex-start;
+      align-items: center;
     }
 
     button {
       border: none;
       border-radius: 12px;
-      padding: 11px 16px;
+      padding: 10px 14px;
       font: inherit;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       transition: transform 0.05s ease, opacity 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+      min-height: 40px;
     }
 
     button:active {
@@ -132,6 +133,12 @@
       border: 1px solid var(--border);
     }
 
+    .btn-warning {
+      background: rgba(245, 158, 11, 0.18);
+      color: #fde68a;
+      border: 1px solid rgba(245, 158, 11, 0.32);
+    }
+
     .btn-danger {
       background: rgba(239, 68, 68, 0.18);
       color: #fecaca;
@@ -139,21 +146,23 @@
     }
 
     .btn-small {
-      padding: 9px 12px;
-      font-size: 14px;
+      padding: 8px 12px;
+      font-size: 13px;
+      min-height: 36px;
     }
 
     .table-wrap {
       overflow-x: auto;
       border-radius: 16px;
       border: 1px solid var(--border);
-      background: rgba(2, 6, 23, 0.18);
+      background: rgba(2, 6, 23, 0.16);
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 980px;
+      min-width: 1240px;
+      table-layout: fixed;
     }
 
     thead th {
@@ -161,15 +170,17 @@
       font-size: 13px;
       color: var(--muted);
       font-weight: 700;
-      padding: 14px 14px;
+      padding: 14px;
       border-bottom: 1px solid var(--border);
       background: rgba(255, 255, 255, 0.02);
+      vertical-align: middle;
     }
 
     tbody td {
       padding: 14px;
       border-bottom: 1px solid var(--border);
-      vertical-align: top;
+      vertical-align: middle;
+      font-size: 14px;
     }
 
     tbody tr:last-child td {
@@ -177,7 +188,7 @@
     }
 
     tbody tr {
-      transition: background 0.2s ease, box-shadow 0.2s ease;
+      transition: background 0.2s ease;
     }
 
     tbody tr:hover {
@@ -186,41 +197,31 @@
 
     tbody tr.expired {
       background: var(--danger-soft);
-      box-shadow: inset 0 0 0 1px var(--warning-border);
     }
 
-    .cell-title {
+    tbody tr.paused {
+      background: var(--warning-soft);
+    }
+
+    .name-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .record-title {
+      font-size: 16px;
       font-weight: 700;
-      font-size: 15px;
-      margin-bottom: 6px;
+      line-height: 1.3;
       word-break: break-word;
     }
 
-    .cell-text {
-      color: var(--muted);
-      line-height: 1.45;
+    .record-desc {
+      color: var(--text);
+      opacity: 0.86;
       white-space: pre-wrap;
       word-break: break-word;
-      max-width: 420px;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-      background: rgba(56, 189, 248, 0.12);
-      color: #bae6fd;
-      border: 1px solid rgba(56, 189, 248, 0.22);
-    }
-
-    .pill.expired {
-      background: rgba(239, 68, 68, 0.14);
-      color: #fecaca;
-      border-color: rgba(239, 68, 68, 0.28);
+      line-height: 1.45;
     }
 
     .countdown {
@@ -229,22 +230,91 @@
       font-variant-numeric: tabular-nums;
       letter-spacing: 0.03em;
       white-space: nowrap;
+      line-height: 1;
     }
 
     .countdown.expired {
       color: #fecaca;
     }
 
-    .subline {
-      margin-top: 6px;
+    .countdown.paused {
+      color: #fde68a;
+    }
+
+    .muted {
       color: var(--muted);
-      font-size: 12px;
+      font-size: 13px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1;
+      white-space: nowrap;
+      border: 1px solid transparent;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .status-active {
+      color: #bbf7d0;
+      background: var(--success-soft);
+      border-color: rgba(34, 197, 94, 0.28);
+    }
+
+    .status-active .status-dot {
+      background: var(--success);
+    }
+
+    .status-expired {
+      color: #fecaca;
+      background: var(--danger-soft);
+      border-color: rgba(239, 68, 68, 0.28);
+    }
+
+    .status-expired .status-dot {
+      background: var(--danger);
+    }
+
+    .status-paused {
+      color: #fde68a;
+      background: var(--warning-soft);
+      border-color: rgba(245, 158, 11, 0.28);
+    }
+
+    .status-paused .status-dot {
+      background: var(--warning);
     }
 
     .actions {
       display: flex;
-      gap: 8px;
       flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .cell-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      justify-content: center;
+    }
+
+    .danger-note {
+      color: #fecaca;
+      font-size: 12px;
+      font-weight: 600;
     }
 
     .empty {
@@ -254,13 +324,6 @@
       padding: 36px;
       text-align: center;
       background: rgba(15, 23, 42, 0.4);
-    }
-
-    .danger-note {
-      color: #fecaca;
-      font-size: 12px;
-      margin-top: 6px;
-      font-weight: 600;
     }
 
     .modal-backdrop {
@@ -313,6 +376,7 @@
       color: var(--text);
       border: 1px solid var(--border);
       font-size: 18px;
+      min-height: 38px;
     }
 
     .modal-body {
@@ -328,6 +392,7 @@
       margin-bottom: 8px;
       font-size: 14px;
       color: var(--muted);
+      font-weight: 600;
     }
 
     .field input,
@@ -339,6 +404,7 @@
       border-radius: 12px;
       padding: 12px 14px;
       font: inherit;
+      font-size: 14px;
       outline: none;
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
@@ -376,6 +442,7 @@
       margin: 0 0 10px;
       cursor: pointer;
       color: var(--text);
+      font-size: 14px;
     }
 
     .mode-box input[type="radio"] {
@@ -404,7 +471,7 @@
       border-radius: 6px;
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 720px) {
       .container {
         width: min(100%, calc(100% - 20px));
         margin: 20px auto 28px;
@@ -414,12 +481,16 @@
         padding: 14px;
       }
 
-      .modal {
+      .toolbar-top {
+        align-items: flex-start;
+      }
+
+      .toolbar-actions {
         width: 100%;
       }
 
-      .header {
-        margin-bottom: 16px;
+      .modal {
+        width: 100%;
       }
     }
   </style>
@@ -427,29 +498,26 @@
 <body>
   <div class="container">
     <header class="header">
-      <div class="title-wrap">
-        <h1>Таймеры обратного отсчёта</h1>
-        <p class="subtitle">
-          Таблица показывает добавленные записи, их длительность, текущее время обратного отсчёта
-          и дату последнего запуска. Добавление и изменение выполняются через всплывающие окна.
-        </p>
-      </div>
-
-      <div class="toolbar-actions">
-        <button class="btn-primary" id="openCreateBtn" type="button">Добавить запись</button>
-      </div>
+      <h1 class="title">Таймеры обратного отсчёта</h1>
+      <p class="subtitle">
+        Таблица показывает записи, длительность, обратный отсчёт и дату последнего запуска.
+        Звук берётся из <code>sounds/alarm.mp3</code>.
+      </p>
     </header>
 
     <section class="panel">
       <div class="toolbar">
-        <div class="toolbar-left">
-          <h2 class="toolbar-title">Список записей</h2>
-          <div class="toolbar-meta" id="stats">Записей: 0</div>
+        <div class="toolbar-top">
+          <div>
+            <h2 class="toolbar-title">Список записей</h2>
+            <div class="toolbar-meta" id="stats">Записей: 0</div>
+          </div>
         </div>
 
         <div class="toolbar-actions">
-          <button class="btn-secondary btn-small" id="stopAllSoundBtn" type="button">Выключить звук</button>
-          <button class="btn-danger btn-small" id="clearAllBtn" type="button">Удалить все</button>
+          <button class="btn-primary" id="openCreateBtn" type="button">Добавить запись</button>
+          <button class="btn-secondary" id="stopAllSoundBtn" type="button">Выключить звук</button>
+          <button class="btn-danger" id="clearAllBtn" type="button">Удалить все</button>
         </div>
       </div>
 
@@ -518,9 +586,7 @@
             <div id="restartOffsetWrapper" class="field hidden" style="margin-top: 12px; margin-bottom: 0;">
               <label for="restartMinutesAgo">Минут сдвига назад</label>
               <input id="restartMinutesAgo" type="number" min="0" step="1" value="0" placeholder="Например: 30" />
-              <div class="hint">
-                Это число будет вычтено из текущего времени запуска таймера.
-              </div>
+              <div class="hint">Это число будет вычтено из текущего времени запуска таймера.</div>
             </div>
           </div>
         </div>
@@ -536,7 +602,7 @@
   <audio id="alarmAudio" preload="auto" src="sounds/alarm.mp3"></audio>
 
   <script>
-    const STORAGE_KEY = "countdown_timer_records_v5";
+    const STORAGE_KEY = "countdown_timer_records_v6";
 
     const tableContainer = document.getElementById("tableContainer");
     const stats = document.getElementById("stats");
@@ -640,6 +706,18 @@
       });
     });
 
+    function getRecordStatus(record) {
+      if (record.isPaused) return "paused";
+      if (record.endTime <= Date.now()) return "expired";
+      return "active";
+    }
+
+    function getStatusLabel(status) {
+      if (status === "paused") return "Остановлен";
+      if (status === "expired") return "Истёк";
+      return "Активен";
+    }
+
     async function unlockAudio() {
       if (audioUnlocked) return;
 
@@ -651,7 +729,7 @@
         alarmAudio.currentTime = 0;
         audioUnlocked = true;
       } catch (error) {
-        // Браузер может не пустить до первого взаимодействия пользователя.
+        // Ограничение браузера до первого взаимодействия.
       }
     }
 
@@ -701,7 +779,7 @@
       activeAlarmTimerIds.clear();
 
       for (const record of records) {
-        if (record.endTime <= now && !record.soundDismissed) {
+        if (!record.isPaused && record.endTime <= now && !record.soundDismissed) {
           activeAlarmTimerIds.add(record.id);
         }
       }
@@ -715,11 +793,12 @@
 
     function sortRecords() {
       records.sort((a, b) => {
-        const aExpired = a.endTime <= Date.now();
-        const bExpired = b.endTime <= Date.now();
+        const aStatus = getRecordStatus(a);
+        const bStatus = getRecordStatus(b);
 
-        if (aExpired !== bExpired) {
-          return aExpired ? 1 : -1;
+        const order = { active: 0, paused: 1, expired: 2 };
+        if (order[aStatus] !== order[bStatus]) {
+          return order[aStatus] - order[bStatus];
         }
 
         return (b.lastRunAt || 0) - (a.lastRunAt || 0);
@@ -746,56 +825,73 @@
           <table>
             <thead>
               <tr>
-                <th style="width: 18%;">Название</th>
-                <th style="width: 26%;">Описание</th>
-                <th style="width: 10%;">Длительность</th>
-                <th style="width: 16%;">Обратный отсчёт</th>
-                <th style="width: 16%;">Последний запуск</th>
-                <th style="width: 14%;">Действия</th>
+                <th style="width: 17%;">Название</th>
+                <th style="width: 11%;">Статус</th>
+                <th style="width: 24%;">Описание</th>
+                <th style="width: 9%;">Длительность</th>
+                <th style="width: 14%;">Обратный отсчёт</th>
+                <th style="width: 13%;">Последний запуск</th>
+                <th style="width: 12%;">Действия</th>
               </tr>
             </thead>
             <tbody>
               ${records.map((record) => {
-                const remaining = record.endTime - now;
-                const expired = remaining <= 0;
+                const status = getRecordStatus(record);
+                const expired = status === "expired";
+                const paused = status === "paused";
+                const remaining = paused
+                  ? Number(record.pausedRemainingMs || 0)
+                  : Math.max(0, record.endTime - now);
 
                 return `
-                  <tr class="${expired ? "expired" : ""}">
+                  <tr class="${expired ? "expired" : paused ? "paused" : ""}">
                     <td>
-                      <div class="cell-title">${escapeHtml(record.title)}</div>
-                      <div>
-                        <span class="pill ${expired ? "expired" : ""}">
-                          ${expired ? "Время вышло" : "Активен"}
-                        </span>
+                      <div class="name-cell">
+                        <div class="record-title">${escapeHtml(record.title)}</div>
                       </div>
                     </td>
 
                     <td>
-                      <div class="cell-text">${escapeHtml(record.description || "Без описания")}</div>
-                      ${
-                        expired && !record.soundDismissed
-                          ? `<div class="danger-note">Идёт звуковой сигнал</div>`
-                          : ""
-                      }
+                      <span class="status-badge ${
+                        status === "active"
+                          ? "status-active"
+                          : status === "paused"
+                          ? "status-paused"
+                          : "status-expired"
+                      }">
+                        <span class="status-dot"></span>
+                        ${getStatusLabel(status)}
+                      </span>
                     </td>
 
                     <td>
-                      <div>${escapeHtml(formatDurationMinutes(record.durationMinutes))}</div>
+                      <div class="record-desc">${escapeHtml(record.description || "Без описания")}</div>
+                      ${expired && !record.soundDismissed ? `<div class="danger-note">Идёт звуковой сигнал</div>` : ""}
                     </td>
 
                     <td>
-                      <div class="countdown ${expired ? "expired" : ""}">
+                      <div class="cell-stack">
+                        <div>${escapeHtml(formatDurationMinutes(record.durationMinutes))}</div>
+                      </div>
+                    </td>
+
+                    <td>
+                      <div class="countdown ${expired ? "expired" : paused ? "paused" : ""}">
                         ${escapeHtml(formatCountdown(remaining))}
                       </div>
                     </td>
 
                     <td>
-                      <div>${escapeHtml(formatDateTime(record.lastRunAt))}</div>
-                      ${
-                        record.lastRunMode === "offset"
-                          ? `<div class="subline">Сдвиг: ${escapeHtml(String(record.lastRunOffsetMinutes || 0))} мин назад</div>`
-                          : `<div class="subline">От текущего времени</div>`
-                      }
+                      <div class="cell-stack">
+                        <div>${escapeHtml(formatDateTime(record.lastRunAt))}</div>
+                        <div class="muted">
+                          ${
+                            record.lastRunMode === "offset"
+                              ? `Сдвиг: ${escapeHtml(String(record.lastRunOffsetMinutes || 0))} мин`
+                              : "От текущего времени"
+                          }
+                        </div>
+                      </div>
                     </td>
 
                     <td>
@@ -803,19 +899,24 @@
                         <button class="btn-primary btn-small" type="button" data-action="restart" data-id="${record.id}">
                           Повторить
                         </button>
+
+                        ${
+                          paused
+                            ? `<button class="btn-warning btn-small" type="button" data-action="resume" data-id="${record.id}">Продолжить</button>`
+                            : `<button class="btn-warning btn-small" type="button" data-action="pause" data-id="${record.id}" ${expired ? "disabled" : ""}>Остановить</button>`
+                        }
+
                         <button class="btn-secondary btn-small" type="button" data-action="edit" data-id="${record.id}">
                           Изменить
                         </button>
+
                         <button class="btn-danger btn-small" type="button" data-action="delete" data-id="${record.id}">
                           Удалить
                         </button>
+
                         ${
                           expired && !record.soundDismissed
-                            ? `
-                              <button class="btn-secondary btn-small" type="button" data-action="dismiss" data-id="${record.id}">
-                                Выключить звук
-                              </button>
-                            `
+                            ? `<button class="btn-secondary btn-small" type="button" data-action="dismiss" data-id="${record.id}">Выключить звук</button>`
                             : ""
                         }
                       </div>
@@ -881,21 +982,24 @@
 
     function createRecord(data) {
       const now = Date.now();
+      const durationMs = minutesToMs(data.durationMinutes);
 
       records.unshift({
         id: uid(),
         title: data.title,
         description: data.description,
         durationMinutes: data.durationMinutes,
-        durationMs: minutesToMs(data.durationMinutes),
+        durationMs,
         startTime: now,
-        endTime: now + minutesToMs(data.durationMinutes),
+        endTime: now + durationMs,
         lastRunAt: now,
         lastRunMode: "now",
         lastRunOffsetMinutes: 0,
         createdAt: now,
         updatedAt: now,
-        soundDismissed: false
+        soundDismissed: false,
+        isPaused: false,
+        pausedRemainingMs: null
       });
 
       saveRecords();
@@ -910,23 +1014,29 @@
       const now = Date.now();
       const current = records[index];
       const durationMs = minutesToMs(data.durationMinutes);
-      const elapsedSinceLastRun = Math.max(0, now - current.startTime);
-      const newEndTime = current.startTime + durationMs;
 
-      records[index] = {
+      let updated = {
         ...current,
         title: data.title,
         description: data.description,
         durationMinutes: data.durationMinutes,
         durationMs,
-        endTime: newEndTime,
-        updatedAt: now,
-        soundDismissed: current.endTime <= now ? false : current.soundDismissed
+        updatedAt: now
       };
 
-      if (elapsedSinceLastRun >= durationMs) {
-        records[index].endTime = current.startTime + durationMs;
+      if (current.isPaused) {
+        updated.pausedRemainingMs = Math.min(current.pausedRemainingMs ?? durationMs, durationMs);
+      } else {
+        const remainingNow = Math.max(0, current.endTime - now);
+        const clampedRemaining = Math.min(remainingNow, durationMs);
+        updated.endTime = now + clampedRemaining;
       }
+
+      if (!current.isPaused && current.endTime <= now) {
+        updated.endTime = current.startTime + durationMs;
+      }
+
+      records[index] = updated;
 
       saveRecords();
       updateAlarmState();
@@ -949,7 +1059,57 @@
         lastRunMode: mode,
         lastRunOffsetMinutes: offsetMinutes,
         updatedAt: now,
-        soundDismissed: false
+        soundDismissed: false,
+        isPaused: false,
+        pausedRemainingMs: null
+      };
+
+      saveRecords();
+      updateAlarmState();
+      render();
+    }
+
+    function pauseRecord(id) {
+      const index = records.findIndex((item) => item.id === id);
+      if (index === -1) return;
+
+      const record = records[index];
+      if (record.isPaused) return;
+      if (record.endTime <= Date.now()) return;
+
+      const remaining = Math.max(0, record.endTime - Date.now());
+
+      records[index] = {
+        ...record,
+        isPaused: true,
+        pausedRemainingMs: remaining,
+        updatedAt: Date.now(),
+        soundDismissed: true
+      };
+
+      saveRecords();
+      updateAlarmState();
+      render();
+    }
+
+    function resumeRecord(id) {
+      const index = records.findIndex((item) => item.id === id);
+      if (index === -1) return;
+
+      const record = records[index];
+      if (!record.isPaused) return;
+
+      const now = Date.now();
+      const remaining = Math.max(0, Number(record.pausedRemainingMs || 0));
+
+      records[index] = {
+        ...record,
+        isPaused: false,
+        startTime: now - Math.max(0, record.durationMs - remaining),
+        endTime: now + remaining,
+        updatedAt: now,
+        soundDismissed: false,
+        pausedRemainingMs: null
       };
 
       saveRecords();
@@ -1070,21 +1230,12 @@
 
       if (!id || !action) return;
 
-      if (action === "edit") {
-        openEntryModalForEdit(id);
-      }
-
-      if (action === "restart") {
-        openRestartModal(id);
-      }
-
-      if (action === "delete") {
-        deleteRecord(id);
-      }
-
-      if (action === "dismiss") {
-        dismissSound(id);
-      }
+      if (action === "edit") openEntryModalForEdit(id);
+      if (action === "restart") openRestartModal(id);
+      if (action === "delete") deleteRecord(id);
+      if (action === "dismiss") dismissSound(id);
+      if (action === "pause") pauseRecord(id);
+      if (action === "resume") resumeRecord(id);
     });
 
     clearAllBtn.addEventListener("click", () => {
@@ -1103,7 +1254,7 @@
       let changed = false;
 
       records = records.map((record) => {
-        if (record.endTime <= Date.now() && !record.soundDismissed) {
+        if (!record.isPaused && record.endTime <= Date.now() && !record.soundDismissed) {
           changed = true;
           return { ...record, soundDismissed: true };
         }
